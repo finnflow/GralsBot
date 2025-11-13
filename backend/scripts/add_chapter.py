@@ -2,15 +2,19 @@ import os
 import sys
 import json
 import pickle
+from pathlib import Path
 from typing import List, Dict
 
 import numpy as np
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from backend.config.settings import MODEL_NAME, INDEX_PATH as CONFIG_INDEX_PATH
+
 # ==== Einstellungen ============================================================
-EMBEDDING_MODEL = "text-embedding-3-large"  # muss zu deinem Index & query_index.py passen!
-INDEX_PATH = os.path.join(os.path.dirname(__file__), "../data/index.pkl")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+EMBEDDING_MODEL = MODEL_NAME  # muss zu deinem Index & query_index.py passen!
+INDEX_PATH = PROJECT_ROOT / CONFIG_INDEX_PATH
 REQUIRED_FIELDS = {"id", "kap_nr", "kap_titel", "seg_nr", "word_count", "text"}
 BATCH_SIZE = 64  # Embeddings in Batches schicken (sparsam & stabil)
 
@@ -22,14 +26,16 @@ if not API_KEY:
 client = OpenAI(api_key=API_KEY)
 
 # ==== Helpers =================================================================
-def load_index(path: str) -> List[Dict]:
-    if os.path.exists(path):
+def load_index(path) -> List[Dict]:
+    path = Path(path)
+    if path.exists():
         with open(path, "rb") as f:
             return pickle.load(f)
     return []
 
-def save_index(index: List[Dict], path: str):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+def save_index(index: List[Dict], path):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "wb") as f:
         pickle.dump(index, f)
 
@@ -136,6 +142,6 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("❌ Bitte eine Kapiteldatei (JSONL) angeben.\n"
               "   Beispiel:\n"
-              "   python add_chapter.py ../data/segmente/K004_Das_Leben.jsonl")
+              "   python backend/scripts/add_chapter.py backend/data/segmente/K004_Das_Leben.jsonl")
         sys.exit(1)
     add_chapter(sys.argv[1])

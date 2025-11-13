@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 
-DATA_DIR = Path("../data/segmente")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_DIR = PROJECT_ROOT / "backend" / "data" / "segmente"
 
 for file in DATA_DIR.glob("*.json"):
     with open(file, "r", encoding="utf-8") as f:

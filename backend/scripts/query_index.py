@@ -1,14 +1,18 @@
 import os
 import pickle
+from pathlib import Path
+
 import numpy as np
 from openai import OpenAI
 from dotenv import load_dotenv
+
+from backend.config.settings import INDEX_PATH as CONFIG_INDEX_PATH, MODEL_NAME, TOP_K
 
 # 🔑 ENV laden
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-INDEX_PATH = os.path.join(os.path.dirname(__file__), "../data/index.pkl")
+INDEX_PATH = Path(__file__).resolve().parents[2] / CONFIG_INDEX_PATH
 
 # Kosinus-Ähnlichkeit
 def cosine_similarity(a, b):
@@ -25,7 +29,7 @@ query = input("❓ Deine Frage: ")
 
 # Embedding für die Frage
 query_embedding = client.embeddings.create(
-    model="text-embedding-3-large",
+    model=MODEL_NAME,
     input=query
 ).data[0].embedding
 
@@ -36,7 +40,7 @@ for seg in index:
     scored_segments.append((score, seg))
 
 scored_segments.sort(key=lambda x: x[0], reverse=True)
-top_segments = [seg for _, seg in scored_segments[:3]]
+top_segments = [seg for _, seg in scored_segments[:TOP_K]]
 
 # Kontexte vorbereiten
 context_texts = "\n\n".join([f"{s['kap_titel']} (Abschnitt {s['seg_nr']}):\n{s['text']}" for s in top_segments])
