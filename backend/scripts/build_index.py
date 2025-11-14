@@ -1,11 +1,16 @@
-import os, json, pickle, numpy as np
+import os
+import json
+import pickle
+import numpy as np
 from pathlib import Path
+
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from backend.config.settings import INDEX_PATH as CONFIG_INDEX_PATH, MODEL_NAME
+
 # --- .env aus Projektwurzel laden ---
-THIS_DIR = Path(__file__).resolve().parent
-ROOT_DIR = THIS_DIR.parent
+ROOT_DIR = Path(__file__).resolve().parents[2]
 ENV_PATH = ROOT_DIR / ".env"
 load_dotenv(dotenv_path=ENV_PATH)
 
@@ -16,11 +21,11 @@ print(f"🔑 OPENAI_API_KEY geladen (Länge {len(API_KEY)}).")
 
 client = OpenAI(api_key=API_KEY)
 
-DATA_DIR = ROOT_DIR / "data" / "segmente"
-INDEX_FILE = ROOT_DIR / "data" / "index.pkl"
+DATA_DIR = ROOT_DIR / "backend" / "data" / "segmente"
+INDEX_FILE = ROOT_DIR / CONFIG_INDEX_PATH
 
 def embed_text(text: str) -> np.ndarray:
-    resp = client.embeddings.create(model="text-embedding-3-large", input=text)
+    resp = client.embeddings.create(model=MODEL_NAME, input=text)
     return np.array(resp.data[0].embedding, dtype="float32")
 
 def preview(path: Path) -> str:
