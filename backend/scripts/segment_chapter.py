@@ -19,8 +19,7 @@ except ImportError as exc:  # pragma: no cover - graceful error for missing depe
     ) from exc
 
 from backend.config import settings
-from backend.scripts.segment_utils import save_segments
-from backend.scripts.segment_utils import id_matches
+from backend.scripts.segment_utils import id_matches, save_segments
 from backend.scripts.utils import default_segment_path, ensure_directories
 
 LOGGER = logging.getLogger(__name__)
