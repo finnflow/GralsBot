@@ -9,8 +9,7 @@ from typing import Iterable, List, Optional
 
 from backend.scripts.utils import project_root
 
-PROJECT_ROOT = project_root()
-DEFAULT_DIRECTORY = PROJECT_ROOT / "backend" / "data" / "segmente"
+DEFAULT_DIRECTORY = project_root() / "backend" / "data" / "segmente"
 
 
 def convert_file(input_path: Path, output_path: Optional[Path] = None) -> Path:
@@ -51,6 +50,8 @@ def convert_many(files: Iterable[Path], output_dir: Optional[Path] = None) -> Li
 def convert_directory(directory: Path, output_dir: Optional[Path] = None) -> List[Path]:
     directory = directory.resolve()
     files = sorted(directory.glob("*.json"))
+    if not files:
+        raise FileNotFoundError(f"Keine JSON-Dateien in {directory} gefunden.")
     return convert_many(files, output_dir)
 
 
@@ -77,9 +78,10 @@ def main() -> None:
 
     if args.paths:
         convert_many(args.paths, output_dir)
-    else:
-        target_dir = output_dir or DEFAULT_DIRECTORY
-        convert_directory(DEFAULT_DIRECTORY, target_dir if target_dir != DEFAULT_DIRECTORY else None)
+        return
+
+    target_dir = None if output_dir is None or output_dir == DEFAULT_DIRECTORY else output_dir
+    convert_directory(DEFAULT_DIRECTORY, target_dir)
 
 
 if __name__ == "__main__":
