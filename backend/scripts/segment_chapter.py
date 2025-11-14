@@ -10,17 +10,10 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from dotenv import load_dotenv
-
-try:
-    from openai import OpenAI
-except ImportError as exc:  # pragma: no cover - graceful error for missing dependency
-    raise SystemExit(
-        "Das Paket 'openai' wird benötigt, ist aber nicht installiert."
-    ) from exc
+from openai import OpenAI
 
 from backend.config import settings
-from backend.scripts.segment_utils import save_segments
-from backend.scripts.segment_utils import id_matches
+from backend.scripts.segment_utils import id_matches, save_segments
 from backend.scripts.utils import default_segment_path, ensure_directories
 
 LOGGER = logging.getLogger(__name__)
@@ -206,7 +199,7 @@ def main() -> None:
 
     try:
         segment_chapter(args.kap_nr, args.kap_titel, args.input, output_path)
-    except Exception as exc:  # pragma: no cover - CLI safeguard
+    except Exception as exc:
         LOGGER.error("Segmentierung fehlgeschlagen: %s", exc)
         sys.exit(1)
 
